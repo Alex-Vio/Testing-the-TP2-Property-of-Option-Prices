@@ -52,7 +52,7 @@ The large raw files are supplied separately in the accompanying Google Drive
 folder because they are too large for GitHub. The folder structure must be
 copied into `data/` as shown in `data/README.md`.
 
-The SPX data come from **OptionMetrics IvyDB US through WRDS. In WRDS, the annual option
+The SPX data come from OptionMetrics IvyDB US through WRDS. In WRDS, the annual option
 price tables are `optionm_all.opprcdYYYY` (or `optionm.opprcdYYYY`, depending on
 the subscription). I selected SPX using OptionMetrics `secid = 108105` and
 downloaded 2000-2025, one annual CSV per year. These are saved as
