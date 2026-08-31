@@ -1,71 +1,84 @@
-# TP2/RR2 thesis code
+# Testing the TP2 property of option prices
 
-This is the compact submission version of the code used in the thesis.  It
-contains the three empirical parts that remain in the final draft:
+This repository contains the code and saved results for my MSc thesis. The
+project has three parts:
 
-1. TP2/RR2 tests on SPX option chains;
-2. the FX surface extension; and
-3. the trading backtests.
+1. testing TP2 and RR2 inequalities in SPX option prices;
+2. repeating the tests on constructed FX option surfaces; and
+3. checking whether the SPX violations lead to a realistic trading strategy.
 
-The notebooks read the saved CSV results and recreate the thesis tables and
-figures.  They do not start the multi-hour raw-data calculations.  The raw
-calculations are kept separately in `src` so that the methods can still be
-checked and rerun.
+The easiest way to review the work is to run the three notebooks. They use the
+small CSV files already included in `outputs/`, so the raw OptionMetrics data
+are not needed and the notebooks should finish quickly.
 
-The included CSVs are the compact evidence used in the thesis, not example
-data.  The three source files can rebuild every calculated table used by the
-notebooks.  The annual results transcribed from the paper are retained as a
-reference input rather than presented as a calculation of this project.
+## Running the results notebooks
 
-## Files
-
-```
-src/spx.py                 SPX cleaning, forwards and TP2/RR2 inequalities
-src/fx.py                  FX surface conversion and the same inequalities
-src/trading.py             the six Chapter 5 specifications and regressions
-notebooks/01_spx_results.ipynb
-notebooks/02_fx_results.ipynb
-notebooks/03_trading_results.ipynb
-outputs/                   compact results used by the notebooks
-data/README.md             raw-data layout
-```
-
-There are no download, WRDS-ingestion or general data-exploration notebooks.
-Only analyses reported in Chapters 3-5 of the thesis are included.
-
-## Quick reproduction
-
-Create an environment and install the small set of packages:
+From the repository folder:
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-```
-
-The notebooks use simple paths relative to their own folder, so start Jupyter
-there:
-
-```powershell
 cd notebooks
 jupyter lab
 ```
 
-All three notebooks can then be run from top to bottom.  They write figures to
-`figures/` and do not alter the saved CSV results.
+Run the notebooks in this order:
 
-Each notebook contains short comments on what the tables show and where the
-interpretation is limited.  The detailed economic discussion remains in the
-thesis rather than being duplicated in code.
+```text
+01_spx_results.ipynb       SPX tests and descriptive results
+02_fx_results.ipynb        FX extension
+03_trading_results.ipynb   trading backtests and regressions
+```
 
-## Raw calculations
+They recreate the thesis tables and figures from the saved results. They do
+not launch the long raw-data calculations.
 
-The annual OptionMetrics files are larger than GitHub's individual-file limit.
-They are supplied separately and should be placed as described in
-`data/README.md`.  Rebuilding the full 2000-2025 results is intentionally not a
-notebook switch because it takes many hours.
+## Repository layout
 
-Main SPX test:
+```text
+src/spx.py       SPX data cleaning and TP2/RR2 tests
+src/fx.py        FX surface preparation and TP2/RR2 tests
+src/trading.py   trading backtests and factor regressions
+notebooks/       short notebooks used to present the results
+outputs/         compact CSV results used by the notebooks
+figures/         figures produced by the notebooks
+data/README.md   required raw-data folder layout
+```
+
+## Where the data came from
+
+The large raw files are supplied separately in the accompanying Google Drive
+folder because they are too large for GitHub. The folder structure must be
+copied into `data/` as shown in `data/README.md`.
+
+The SPX data come from **OptionMetrics IvyDB US through WRDS**. Access requires
+a WRDS account with an OptionMetrics subscription. In WRDS, the annual option
+price tables are `optionm_all.opprcdYYYY` (or `optionm.opprcdYYYY`, depending on
+the subscription). I selected SPX using OptionMetrics `secid = 108105` and
+downloaded 2000-2025, one annual CSV per year. These are saved as
+`data/raw/optionMetricsSpxYYYY.csv`.
+
+The supporting SPX files were obtained as follows:
+
+| File | Source |
+|---|---|
+| `spx_forward_prices.csv` | OptionMetrics annual `fwdpr` tables on WRDS, filtered to SPX `secid = 108105` |
+| `spx_option_settlement_types.csv` | `optionid` and `am_settlement` from the annual OptionMetrics `opprcdYYYY` tables |
+| `spx_delta_exclusions.parquet` | dates and contracts with an invalid OptionMetrics delta, taken from the same annual option tables |
+| `spx_market_data.csv` | SPX and VIX closing levels from the annual OptionMetrics `secprd` tables |
+| `spx_settlement_prices.csv` | SPX closes for PM-settled contracts and official Cboe SET values for AM-settled contracts |
+
+The FX files are the original and repaired option surfaces produced in the
+earlier MATH70128 FX surface project. They are also supplied in the Google
+Drive folder; they are not downloaded from WRDS by this repository.
+
+## Rebuilding the raw results
+
+This is optional. The included `outputs/` files are enough to review the thesis
+results. Full SPX and trading runs take several hours.
+
+SPX tests:
 
 ```powershell
 python -m src.spx data/raw generated/spx --start 2000 --end 2025 `
@@ -74,34 +87,20 @@ python -m src.spx data/raw generated/spx --start 2000 --end 2025 `
   --delta-exclusions data/auxiliary/spx_delta_exclusions.parquet
 ```
 
-This is a heavy run.  The same annual pass also creates the data-coverage,
-quote-quality, calendar-monotonicity and violation-duration tables used by the
-SPX notebook.
-
 Original FX surfaces:
 
 ```powershell
 python -m src.fx data/fx/original generated/fx
 ```
 
-Each repaired sample is run in the same way.  For example, L1BA-PC is compared
-with the original surfaces on exactly the same pair-dates using:
+The repaired L1, L1BA and L1BA-PC folders are run in the same way. For example:
 
 ```powershell
 python -m src.fx data/fx/repaired_l1ba_pc generated/fx_l1ba_pc `
   --method L1BA-PC --original-folder data/fx/original
 ```
 
-The corresponding L1 and L1BA runs use `--method L1` and `--method L1BA`.
-Their small method and pair summaries are combined in `outputs/fx` for the
-results notebook.  Once all four result folders exist, combine them with:
-
-```powershell
-python -m src.fx generated/fx generated/submission_fx `
-  --combine-repairs generated/fx_l1 generated/fx_l1ba generated/fx_l1ba_pc
-```
-
-Trading calculations:
+Trading backtests:
 
 ```powershell
 python -m src.trading data/raw generated/trading --spec all `
@@ -113,11 +112,5 @@ python -m src.trading data/raw generated/trading --spec all `
   --paper-results outputs/trading/paper_reported_by_year.csv
 ```
 
-After the five portfolio simulations and the paper-style strong-signal test,
-this command also rebuilds the two six-stage tables and the factor regressions.
-
-The trading code uses cash-based sizing for every specification.  The paper
-cash return and marked-equity return therefore use the same midpoint trade
-path.  The practical specifications use next-day bid/ask execution, lagged
-five-observation volume, a 25% maximum relative spread, a 10% participation
-cap, netting, whole contracts and a USD 1 commission per contract.
+The trading command is the heaviest run. It produces the paper-style
+replication, the six practical specifications, and the factor regressions.
