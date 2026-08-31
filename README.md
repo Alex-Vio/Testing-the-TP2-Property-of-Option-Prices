@@ -3,13 +3,13 @@
 This repository contains the code and saved results for my MSc thesis. The
 project has three parts:
 
-1. testing TP2 and RR2 inequalities in SPX option prices;
-2. repeating the tests on constructed FX option surfaces; and
-3. checking whether the SPX violations lead to a realistic trading strategy.
+1. Testing TP2 and RR2 inequalities in SPX option prices.
+2. repeating the tests on constructed FX option surfaces.
+3. Checking whether the SPX violations lead to a realistic trading strategy.
 
-The easiest way to review the work is to run the three notebooks. They use the
+The best way to review the work is to run the three notebooks. They use the
 small CSV files already included in `outputs/`, so the raw OptionMetrics data
-are not needed and the notebooks should finish quickly.
+are not needed and the notebooks should run quickly.
 
 ## Running the results notebooks
 
