@@ -1,0 +1,17 @@
+sample,cp_flag,liquidity,outcome,count,share
+T2_le_60,C,all,corrected,524544,0.47798318041280796
+T2_le_60,C,all,expired_unresolved_after_gap,531894,0.4846807622668262
+T2_le_60,C,all,expired_while_violating,40894,0.037264069705880476
+T2_le_60,C,all,sample_ended,79,0.000071987614485366
+T2_le_60,P,all,corrected,7108229,0.3331978178777277
+T2_le_60,P,all,expired_unresolved_after_gap,13333345,0.6249997656252929
+T2_le_60,P,all,expired_while_violating,767241,0.03596437691952885
+T2_le_60,P,all,sample_ended,124545,0.005838039577450528
+full,C,all,corrected,757773,0.5203434196666332
+full,C,all,expired_unresolved_after_gap,656706,0.4509432848037553
+full,C,all,expired_while_violating,41701,0.028635014633034264
+full,C,all,sample_ended,114,0.00007828089657720213
+full,P,all,corrected,8817010,0.3573062148881797
+full,P,all,expired_unresolved_after_gap,14935549,0.6052578459667096
+full,P,all,expired_while_violating,783855,0.031765446911274246
+full,P,all,sample_ended,139927,0.005670492233836451

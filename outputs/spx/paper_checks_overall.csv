@@ -1,0 +1,5 @@
+run_name,number_of_dates,call_pairs_tested,call_violations,put_pairs_tested,put_violations,use_bid_ask,test_method,forward_source,delta_filter,verified_settlement_flags,call_violation_rate,put_violation_rate
+rounded_bid_ask_robust,6454,1484867232,61828,3124512118,8204209,true,rounded,optionmetrics,true,true,0.00004163873959069224,0.002625756819036283
+rounded_mid,6454,1484867232,1940008,3124512118,36759885,false,rounded,optionmetrics,true,true,0.0013065195043646838,0.01176499997815019
+two_strike_bid_ask_robust,6454,671585070,131152,1603978013,6028626,true,two_strike,optionmetrics,true,true,0.0001952872478240173,0.0037585465331437806
+two_strike_mid,6454,671585070,5943014,1603978013,47647180,false,two_strike,optionmetrics,true,true,0.008849234840792395,0.02970563163199669

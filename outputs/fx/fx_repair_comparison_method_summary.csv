@@ -1,0 +1,9 @@
+run_name,method,number_of_surfaces,call_pairs_tested,call_violations,put_pairs_tested,put_violations,call_violation_rate,put_violation_rate
+rounded_bid_ask_robust,L1,158,50777,0,0,0,0.0,0.0
+rounded_bid_ask_robust,L1BA,158,50777,0,0,0,0.0,0.0
+rounded_bid_ask_robust,L1BA-PC,158,50777,0,50777,0,0.0,0.0
+rounded_bid_ask_robust,original_on_repaired_dates,158,50777,0,50775,0,0.0,0.0
+rounded_mid,L1,158,50777,36,0,0,0.000708982413297359,0.0
+rounded_mid,L1BA,158,50777,31,0,0,0.0006105126336727258,0.0
+rounded_mid,L1BA-PC,158,50777,31,50777,46,0.0006105126336727258,0.0009059219725466254
+rounded_mid,original_on_repaired_dates,158,50777,223,50775,174,0.004391752171258641,0.0034268833087149186

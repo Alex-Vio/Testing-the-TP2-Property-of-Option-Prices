@@ -1,0 +1,3 @@
+cp_flag,total_violations,calendar_testable,calendar_not_testable,calendar_violations,calendar_consistent_violations,fails_at_k1,fails_at_k2,calendar_violation_share,calendar_consistent_share,calendar_not_testable_share
+C,1940008,1935648,4360,97102,1838546,11047,96964,0.050165112665112664,0.9498348873348873,0.002247413412728195
+P,36759885,36638456,121429,147995,36490461,147841,52499,0.004039335063682815,0.9959606649363172,0.003303301955378805

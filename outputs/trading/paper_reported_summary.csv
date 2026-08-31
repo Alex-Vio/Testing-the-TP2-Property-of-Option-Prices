@@ -1,0 +1,5 @@
+option_type,denomination,mean_annual_return_percent,median_reported_sharpe
+Calls,T1,71.60347826086957,2.97
+Calls,K2,67.17434782608696,3.43
+Puts,T1,22.00913043478261,3.56
+Puts,K1,37.69173913043478,4.46

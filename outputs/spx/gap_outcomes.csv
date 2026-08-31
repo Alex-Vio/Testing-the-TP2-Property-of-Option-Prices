@@ -1,0 +1,15 @@
+sample,cp_flag,liquidity,ever_reappeared,outcome,count,share_of_gap_episodes
+full,C,all,false,corrected,306448,0.3013639894971825
+full,C,all,false,expired_unresolved_after_gap,585779,0.5760608534030899
+full,C,all,false,sample_ended,101,0.00009932439741559884
+full,C,all,true,corrected,51908,0.051046839812365394
+full,C,all,true,expired_unresolved_after_gap,70927,0.06975031223263543
+full,C,all,true,expired_while_violating,1705,0.0016767138375603568
+full,C,all,true,sample_ended,2,1.9668197508039374e-6
+full,P,all,false,corrected,2921537,0.1553899112456406
+full,P,all,false,expired_unresolved_after_gap,12926099,0.6875098197840259
+full,P,all,false,sample_ended,70839,0.0037677653655353105
+full,P,all,true,corrected,776022,0.04127484598164066
+full,P,all,true,expired_unresolved_after_gap,2009450,0.10687807724240785
+full,P,all,true,expired_while_violating,66567,0.0035405473974447553
+full,P,all,true,sample_ended,30816,0.0016390329833049044

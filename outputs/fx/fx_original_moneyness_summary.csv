@@ -1,0 +1,7 @@
+run_name,method,cp_flag,moneyness_region,pairs_tested,violations,violation_rate
+rounded_mid,original,C,both_itm,2196530,0,0.0
+rounded_mid,original,C,both_otm,1333332,49,0.00003675003675003675
+rounded_mid,original,C,crosses_forward,2162936,174,0.0000804462083020487
+rounded_mid,original,P,both_itm,1332604,0,0.0
+rounded_mid,original,P,both_otm,2195516,60,0.000027328427576934077
+rounded_mid,original,P,crosses_forward,2161575,114,0.000052739322022136635

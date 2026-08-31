@@ -1,0 +1,3 @@
+run_name,method,number_of_surfaces,call_pairs_tested,call_violations,put_pairs_tested,put_violations,call_violation_rate,put_violation_rate
+rounded_bid_ask_robust,original,17170,5692798,0,5689695,0,0.0,0.0
+rounded_mid,original,17170,5692798,223,5689695,174,0.00003917230156418689,0.00003058160411058941
