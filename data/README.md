@@ -28,6 +28,4 @@ OptionMetrics tables.  The settlement file combines the S&P 500 close for PM
 contracts and CBOE SET for AM contracts.  The FX surface files are the outputs
 of the earlier MATH70128 surface-construction project.
 
-The raw files are kept outside Git only because of GitHub's file-size limit,
-not because the notebooks need a private local path.
-
+The raw files are kept outside Git because of GitHub's file-size limit.
