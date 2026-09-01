@@ -29,3 +29,4 @@ contracts and CBOE SET for AM contracts.  The FX surface files are the outputs
 of the earlier MATH70128 surface-construction project.
 
 The raw files are kept outside Git because of GitHub's file-size limit.
+The access link is provided separately with the submission.
