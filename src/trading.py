@@ -15,7 +15,7 @@ Five portfolio simulations produce the six backtests in the thesis:
     3. same-day execution at bid and ask prices;
     4. next-day execution at bid and ask prices;
     5. mid-price signals with next-day executable and liquidity restrictions;
-    6. strong bid-ask signals with the same practical restrictions.
+    6. bid-ask robust signals with the same restrictions.
 
 The file also contains the paper-style same-day bid-ask robust signal trade test and
 the monthly factor regressions reported after the main backtest table.
@@ -26,8 +26,8 @@ Main functions:
         its settlement payoff.
 
     run_backtest
-        Runs one backtest through the annual SPX files and saves its daily
-        cash, marked equity, trade and signal-survival paths.
+        Runs one strategy specification over the annual SPX files and saves the daily cash balance,
+        marked equity, trade records and counts of detected, filtered and executable signals.
 
     make_backtest_table
         Calculates return, Sharpe ratio, drawdown and daily-loss statistics for
@@ -37,18 +37,18 @@ Main functions:
         Runs the monthly market and market-volatility-liquidity regressions.
 
     make_paper_comparison
-        Compares annual midpoint cash returns and Sharpes with the published
+        Compares annual mid-price cash returns and Sharpes with the published
         annual series and rebuilds the replication table.
 
 Important conventions:
-    - Initial wealth is USD 1 million and one option contract has multiplier 100.
+    - Initial wealth is USD 1 million and SPX option prices are quoted in index points, with each point worth USD 100 per contract.
     - All specifications size new trades from cash using kappa = 100.
-    - Cash and marked-equity midpoint returns therefore use identical trades.
+    - Cash and marked-equity mid-price returns use identical trades.
     - A next-day signal is detected on date t and traded using quotes on t+1.
     - Lagged volume contains only observations available before execution.
     - Open long options are marked at the bid and shorts at the offer.
-    - Missing quotes keep the previous liquidation mark.
-    - Every accepted position is held to its contractual settlement.
+    - If an open option has no valid quote, its most recent liquidation value is carried forward until a new quote becomes available or the option settles.
+    - Positions are normally held to settlement; positions still open at a long data gap or sample end use their latest available liquidation marks.
 """
 
 from collections import defaultdict, deque
@@ -102,7 +102,7 @@ SPECS = {
     "next_day_bid_ask": {**COMMON, "execution": "bid_ask", "lag": 1},
     "mid_signal_liquid_next_day": dict(LIQUID),
     "strong_signal_liquid_next_day": {**LIQUID, "signal": "bid_ask"},
-    # This is the paper-style Table 5.12 check, not one of the six portfolios.
+    # This is the paper-style Table 5.12 check.
     "strong_signal_same_day": {
         **COMMON, "signal": "bid_ask", "execution": "bid_ask",
         "minimum_volume": 1,
@@ -141,7 +141,7 @@ def contract_key(cp_flag, expiry, am_settlement, strike):
 
 def paper_filter(signal, minimum_volume):
     """
-    Apply the paper's additional screens to one detected violation.
+    Apply the paper's additional screening criteria to one detected violation.
 
     All four options must satisfy the daily-volume requirement. The function
     also removes simple vertical-price inconsistencies at each maturity and
@@ -206,7 +206,7 @@ def _signal_prices(signal, rule):
     """
     Return the four prices used to decide whether the signal is violated.
 
-    Midpoint signals use all four mid prices. Strong call signals value the two
+    Mid-price signals use all four mid prices. Bid-ask robust call signals value the two
     purchases at the offer and the two sales at the bid; puts reverse those
     directions because RR2 has the opposite determinant sign.
     """
@@ -252,7 +252,7 @@ def make_trade(signal, denomination, quotes, settlements, spec, execution_date):
     The four prices form two products, labelled left and right. A call
     violation buys the left product and sells the right product; a put
     violation reverses those positions. The T1, T2, K1 and K2 denominations
-    select which two options are traded and which two signal prices determine
+    select which two options are traded and which two prices determine
     their quantities.
 
     The returned trade stores executable entry prices, settlement profit,
@@ -283,8 +283,9 @@ def make_trade(signal, denomination, quotes, settlements, spec, execution_date):
             signal["K2_rounded"], -left_sign,
         ),
     }
-    # Each pair is (option traded, signal-date option price used as its
-    # quantity).  This turns each product in the inequality into two legs.
+    # Each tuple defines one trade leg. The first item is the contract traded,
+    # and the second is the contract whose signal-date price sets its quantity.
+    # This expresses the two products in the TP2/RR2 inequality as a two-leg trade.
     definitions = {
         "T1": [("K1_T1", "K2_T2"), ("K2rounded_T1", "K1rounded_T2")],
         "T2": [("K2_T2", "K1_T1"), ("K1rounded_T2", "K2rounded_T1")],
@@ -292,7 +293,8 @@ def make_trade(signal, denomination, quotes, settlements, spec, execution_date):
         "K2": [("K2_T2", "K1_T1"), ("K2rounded_T1", "K1rounded_T2")],
     }
 
-    # Attach execution-day quotes to the two selected contracts.
+    # Retrieve the trade-date quote for each selected contract and apply the
+    # spread and volume filters.
     legs = []
     for contract_name, quantity_name in definitions[denomination]:
         expiry, am, strike, direction = contracts[contract_name]
@@ -359,11 +361,11 @@ def _mark_position(quantity, quote, previous):
 
 def _liquidate(strategy, cash, positions, marks, daily_rows, last_row):
     """
-    Close any remaining marked positions after a break or at sample end.
+    Close open positions after a long data gap or at the end of the sample.
 
-    This is an accounting close using the latest available liquidation marks.
-    It prevents positions from being carried across a long break in the input
-    files and makes the final reported equity equal to final cash.
+    Each position is valued using its latest available liquidation mark. Its
+    value is added to cash, the position is removed and the final marked
+    equity is set equal to the final cash balance.
     """
 
     for key, quantity in positions[strategy].items():
@@ -491,7 +493,7 @@ def run_backtest(
             # The paper defines the traded strike grid using positive bids and
             # volume. Choose crossed strikes on that grid first. The detector
             # then rejects the signal if any selected leg fails this strategy's
-            # tighter volume or spread rule; it never substitutes another leg.
+            # tighter volume or spread rule.
             signal_day = day.filter(
                 (pl.col("best_bid") > 0)
                 & (pl.col("volume") > 0)
@@ -756,9 +758,9 @@ def _statistics(daily, value, starting_value, start_year, end_year):
 
 def make_backtest_table(output_folder, start_year, end_year):
     """
-    Create the six-stage return and risk table used by the results notebook.
+    Create the six-stage return and risk table used by the notebook.
 
-    Stages 1 and 2 read the same midpoint simulation but use cash and marked
+    Stages 1 and 2 read the same mid-price simulation but use cash and marked
     equity respectively. Stages 3 to 6 use marked equity from progressively
     more realistic execution specifications.
     """
@@ -787,11 +789,11 @@ def make_backtest_table(output_folder, start_year, end_year):
 
 def make_strong_signal_table(output_folder):
     """
-    Aggregate the paper-style same-day strong-signal test over 2014-2022.
+    Aggregate the paper-style same-day bid-ask robust signal test over 2014-2022.
 
     Signals are detected and priced at the same close, positions are fractional
-    and no capacity limit is imposed. The table therefore reproduces the
-    paper's trade-level diagnostic rather than an implementable portfolio.
+    and no capacity limit is imposed. The table reproduces the
+    paper's trade-level diagnostic.
     """
 
     folder = Path(output_folder) / "strong_signal_same_day"
@@ -812,11 +814,11 @@ def make_strong_signal_table(output_folder):
 
 def make_paper_comparison(daily_file, paper_file, output_folder):
     """
-    Rebuild the two small tables that compare the midpoint run with the paper.
+    Rebuild the two tables that compare the mid-price run with the paper.
 
     `paper_file` is the annual series transcribed from the published table.
     Returns and Sharpe ratios for our implementation are calculated directly
-    from the midpoint daily cash path, using the same 2003-2022 years.
+    from the mid-price daily cash path, using the same 2003-2022 years.
     """
 
     daily = pd.read_csv(daily_file, parse_dates=["date"])
@@ -875,7 +877,7 @@ def make_paper_comparison(daily_file, paper_file, output_folder):
         output / "paper_replication_summary.csv"
     )
 
-    # The paper headline table uses all published years, not only our overlap.
+    # The paper headline table uses all published years.
     paper_rows = []
     for (cp_flag, denomination), prefix in columns.items():
         paper_rows.append({
@@ -889,10 +891,10 @@ def make_paper_comparison(daily_file, paper_file, output_folder):
 
 def factor_regressions(daily_file, market_file, output_file):
     """
-    Run the monthly factor regressions for the practical strong-signal strategy.
+    Run the monthly factor regressions for the Stage 6 portfolio returns.
 
     The first model contains the monthly SPX log return. The second adds mean
-    VIX, aggregate option volume and the mean quoted relative spread. Those
+    VIX, the log of aggregate monthly option volume and the mean quoted relative spread. Those
     three added variables are standardised within each strategy series.
     Coefficients are estimated by OLS and inference uses Newey-West standard
     errors with three monthly lags.
