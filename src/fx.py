@@ -133,7 +133,7 @@ def load_original_surfaces(folder):
     tables = []
     for file_name in sorted(Path(folder).rglob("option_surface_*.csv")):
         # The mid rows contain the common strike grid. Raw bid/ask prices are
-        # retained as the executable quote bounds for the strong test.
+        # retained for the bid-ask robust test.
         raw = pl.read_csv(file_name, try_parse_dates=True).filter(pl.col("quote") == "mid")
         pair = file_name.stem.replace("option_surface_", "")
         calls = _option_rows(
@@ -209,9 +209,7 @@ def same_dates(original, repaired):
     """
     Restrict the original sample to pair-dates that were repaired.
 
-    Repair methods are only run on selected dates. Matching the original data
-    to those dates prevents a sample-composition difference from being
-    mistaken for an effect of the repair.
+    Repair methods are only run on selected dates.
     """
 
     dates = repaired.select("pair", "date").unique()

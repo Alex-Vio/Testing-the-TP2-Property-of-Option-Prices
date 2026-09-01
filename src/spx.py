@@ -6,13 +6,12 @@ This file contains the raw-data calculation behind the SPX results in Chapter
 
 The code reads one annual OptionMetrics file at a time, cleans the quotes,
 attaches the SPX forward for each expiry and tests the forward-adjusted TP2
-inequality for calls and RR2 inequality for puts. It deliberately uses plain
-loops for the inequality test so the construction can be followed directly.
+inequality for calls and RR2 inequality for puts.
 
 Main functions:
     load_spx_file
-        Cleans one annual option file, applies the checked settlement and delta
-        information, and adds forwards and forward moneyness.
+        Cleans one annual option file, applies the settlement and delta
+        information and adds forwards and forward moneyness.
 
     estimate_forwards
         Optional put-call-parity fallback when a forward file is unavailable.
@@ -23,7 +22,7 @@ Main functions:
 
     run_years
         Applies the tests to all dates in the selected annual files and writes
-        every compact SPX table used by the notebook, including quote quality,
+        every SPX table used by the notebook, including quote quality,
         calendar monotonicity and violation duration.
 
 Important conventions:
@@ -33,7 +32,7 @@ Important conventions:
     - Adjusted strikes are rounded upward to the next traded strike.
     - Calls violate when the determinant is negative.
     - Puts violate when the determinant is positive.
-    - The strong test values purchases at the offer and sales at the bid.
+    - The bid-ask robust test values purchases at the offer and sales at the bid.
 """
 
 from bisect import bisect_left
@@ -145,7 +144,7 @@ def load_spx_file(
     Returns
     -------
     polars.DataFrame
-        Clean quotes with strike K, midpoint, spread, maturity, forward F and
+        Clean quotes with strike K, mid-price, spread, maturity, forward F and
         forward moneyness k=K/F.
     """
 
@@ -311,7 +310,7 @@ def detect_violations(
         price(K1,T1) price(K2,T2)
         - price(K1_cross,T2) price(K2_cross,T1).
 
-    Midpoint prices give the main test. With bid_ask=True, call
+    Mid-prices give the main test. With bid_ask=True, call
     purchases use offers and sales use bids. The directions are reversed for
     puts. Optional liquidity limits are applied to the four selected contracts,
     after the crossed strikes have been rounded on the full traded strike grid.
@@ -403,7 +402,7 @@ def detect_violations(
                         regions[region][0] += 1
                         maturity_counts[week_pair][0] += 1
 
-                        # Use either midpoint products or the executable sides
+                        # Use either mid-price products or the executable sides
                         # required by the bid-ask robust definition.
                         if bid_ask and cp_flag == "C":
                             left = first["best_offer"] * second["best_offer"]
