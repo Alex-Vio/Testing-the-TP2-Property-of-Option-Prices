@@ -1,9 +1,26 @@
-# Data layout
+# Data
 
-The result notebooks do not require the raw data.  To rerun the source scripts,
-place the supplied files in the following layout.
+The shared Google Drive folder contains:
 
-```
+- `data/`: the raw files required to rerun the analysis;
+- `sources/`: the papers and reports cited in the thesis.
+
+The notebooks and saved results can be viewed without downloading either folder.
+
+## Using the data
+
+To rerun the analysis:
+
+1. Download the `data` folder from Google Drive.
+2. Copy it into the repository root, merging it with the existing `data` folder.
+3. Check that the resulting paths begin with `data/raw`, `data/auxiliary` and `data/fx`.
+4. Run the commands under **Rerunning the analysis** in the main README.
+
+The `sources` folder is for reference only and is not used by the code.
+
+## Folder structure
+
+```text
 data/
   raw/
     optionMetricsSpx2000.csv
@@ -16,17 +33,14 @@ data/
     spx_settlement_prices.csv
     spx_market_data.csv
   fx/
-    original/                 option_surface_PAIR.csv files
-    repaired_l1/              call_surface_PAIR_l1.csv files
-    repaired_l1ba/            call_surface_PAIR_l1ba.csv files
-    repaired_l1ba_pc/         call_surface_PAIR_l1bapc.csv files
+    original/          option_surface_PAIR.csv
+    repaired_l1/       call_surface_PAIR_l1.csv
+    repaired_l1ba/     call_surface_PAIR_l1ba.csv
+    repaired_l1ba_pc/  call_surface_PAIR_l1bapc.csv
 ```
 
-The annual SPX files are the OptionMetrics quote exports used in the thesis.
-`spx_forward_prices.csv` and the delta exclusions come from the corresponding
-OptionMetrics tables.  The settlement file combines the S&P 500 close for PM
-contracts and CBOE SET for AM contracts.  The FX surface files are the outputs
-of the earlier MATH70128 surface-construction project.
+The SPX files are OptionMetrics exports used in the thesis. The settlement file contains SPX closes for PM-settled contracts and Cboe SET values for AM-settled contracts.
 
-The raw files are kept outside Git because of GitHub's file-size limit.
-The access link is provided separately with the submission.
+The FX files are the original and repaired surfaces from the earlier MATH70128 project.
+
+These files are stored outside GitHub because they exceed GitHub's file-size limits.
